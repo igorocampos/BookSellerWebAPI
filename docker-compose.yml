@@ -1,0 +1,28 @@
+version: '3.1'
+services:
+
+    # Application container
+    dotnet:
+        image: microsoft/dotnet
+        build:
+          context: .
+          dockerfile: ./BookSellerWebAPI/Dockerfile
+        environment:
+          PORT: 5000
+        volumes:
+          - ./:/server/http
+        links:
+          - postgres
+        ports:
+          - "5000:80"
+
+    postgres:
+        image: onjin/alpine-postgres:9.5
+        restart: unless-stopped
+        ports:
+            - "5455:5432"
+        environment:
+            LC_ALL: C.UTF-8
+            POSTGRES_USER: book_seller
+            POSTGRES_PASSWORD: book_seller
+            POSTGRES_DB: book_seller
