@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BookSellerWebAPI.Models
 {
     [Table("reviews")]
-    public class Review
+    public class Review : BaseModel
     {
         [Column("book_id")]
         [ForeignKey("Reviews")]
