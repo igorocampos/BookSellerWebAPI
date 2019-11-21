@@ -1,4 +1,6 @@
-﻿namespace BookSellerWebAPI.Controllers.Filters
+﻿using System.Text.Json.Serialization;
+
+namespace BookSellerWebAPI.Controllers.Filters
 {
     public class BooksFilter : BaseFilter
     {
@@ -11,6 +13,7 @@
         public BookOrder OrderBy { get; set; }
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum BookOrder
     {
         Title,

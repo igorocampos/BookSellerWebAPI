@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookSellerWebAPI.Models;
+using BookSellerWebAPI.Controllers.Filters;
+using System;
 
 namespace BookSellerWebAPI.Controllers
 {
@@ -18,9 +20,60 @@ namespace BookSellerWebAPI.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBook()
+        public async Task<ActionResult<PagedResponse<Book, BookOrder>>> List([FromQuery] BooksFilter filter)
         {
-            return await context.Book.ToListAsync();
+            if (filter.Limit <= 0)
+                filter.Limit = 1;
+
+            var totalFiltered = context.Book.Where(book => (string.IsNullOrEmpty(filter.Title) || book.Title.ToUpper().Contains(filter.Title.ToUpper()))
+                                                   && (string.IsNullOrEmpty(filter.AuthorName) || book.AuthorName.ToUpper().Contains(filter.AuthorName.ToUpper()))
+                                                   && (filter.MinAverageRating == null || book.AverageRating >= filter.MinAverageRating)
+                                                   && (filter.MaxAverageRating == null || book.AverageRating <= filter.MaxAverageRating)
+                                                   && (filter.MinPrice == null || book.Price >= filter.MaxPrice)
+                                                   && (filter.MaxPrice == null || book.Price <= filter.MaxPrice));
+
+            switch (filter.OrderBy)
+            {
+                case BookOrder.Title:
+                    totalFiltered = totalFiltered.OrderBy(book => book.Title);
+                    break;
+                case BookOrder.AuthorName:
+                    totalFiltered = totalFiltered.OrderBy(book => book.AuthorName);
+                    break;
+                case BookOrder.BestAverageRating:
+                    totalFiltered = totalFiltered.OrderByDescending(book => book.AverageRating);
+                    break;
+                case BookOrder.WorstAverageRating:
+                    totalFiltered = totalFiltered.OrderBy(book => book.AverageRating);
+                    break;
+                case BookOrder.LowestPrice:
+                    totalFiltered = totalFiltered.OrderBy(book => book.Price);
+                    break;
+                case BookOrder.HighestPrice:
+                    totalFiltered = totalFiltered.OrderByDescending(book => book.Price);
+                    break;
+                default: throw new ArgumentException($"Filter's {nameof(filter.OrderBy)} property has an invalid value.");
+            }
+
+            List<Book> filterData = await totalFiltered
+                              .Skip((filter.Page - 1) * filter.Limit)
+                              .Take(filter.Limit).ToListAsync();
+
+            //Get the data for the current page
+            var result = new PagedResponse<Book, BookOrder>();
+            result.Items = filterData;
+            result.CurrentPage = filter.Page;
+            var countTotalFiltered = await totalFiltered.CountAsync();
+            int totalPages = countTotalFiltered == 0 ? 1 : countTotalFiltered / filter.Limit;
+
+            //if it is not a round division, must have an aditional page
+            if (countTotalFiltered % filter.Limit != 0)
+                totalPages++;
+
+            result.TotalPages = totalPages;
+            result.OrderedBy = filter.OrderBy;
+
+            return result;
         }
 
         // GET: api/Books/5
