@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using BookSellerWebAPI.Models;
 
 namespace BookSellerWebAPI.Models
 {
@@ -9,5 +10,7 @@ namespace BookSellerWebAPI.Models
         public DbSet<Book> Book { get; set; }
 
         public DbSet<Review> Review { get; set; }
+
+        public DbSet<Author> Author { get; set; }
     }
 }

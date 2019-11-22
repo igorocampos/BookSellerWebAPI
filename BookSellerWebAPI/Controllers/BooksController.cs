@@ -18,8 +18,8 @@ namespace BookSellerWebAPI.Controllers
         [HttpGet("Books")]
         public async Task<ActionResult<PagedResponse<Book, BookOrder>>> List([FromQuery] BooksFilter filter)
         {
-            var filteredData = context.Book.Where(book => (string.IsNullOrEmpty(filter.Title) || book.Title.ToUpper().Contains(filter.Title.ToUpper()))
-                                                   && (string.IsNullOrEmpty(filter.AuthorName) || book.AuthorName.ToUpper().Contains(filter.AuthorName.ToUpper()))
+            var filteredData = context.Book.Include(book => book.Author).Where(book => (string.IsNullOrEmpty(filter.Title) || book.Title.ToUpper().Contains(filter.Title.ToUpper()))
+                                                   && (string.IsNullOrEmpty(filter.AuthorName) || book.AuthorFullName.ToUpper().Contains(filter.AuthorName.ToUpper()))
                                                    && (filter.MinAverageRating == null || book.AverageRating >= filter.MinAverageRating)
                                                    && (filter.MaxAverageRating == null || book.AverageRating <= filter.MaxAverageRating)
                                                    && (filter.MinPrice == null || book.Price >= filter.MaxPrice)
@@ -31,7 +31,7 @@ namespace BookSellerWebAPI.Controllers
                     filteredData = filteredData.OrderBy(book => book.Title);
                     break;
                 case BookOrder.AuthorName:
-                    filteredData = filteredData.OrderBy(book => book.AuthorName);
+                    filteredData = filteredData.OrderBy(book => book.AuthorFullName);
                     break;
                 case BookOrder.BestAverageRating:
                     filteredData = filteredData.OrderByDescending(book => book.AverageRating);
@@ -48,7 +48,7 @@ namespace BookSellerWebAPI.Controllers
                 default: throw new ArgumentException($"Filter's {nameof(filter.OrderBy)} property has an invalid value.");
             }
 
-            return await FilterAsync<BooksFilter, BookOrder>(filter, filteredData);
+            return await PaginateAsync<BooksFilter, BookOrder>(filter, filteredData);
         }
     }
 }

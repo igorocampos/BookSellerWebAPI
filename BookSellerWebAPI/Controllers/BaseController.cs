@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using BookSellerWebAPI.Models;
 using BookSellerWebAPI.Controllers.Filters;
 using System;
+using BookSellerWebAPI.Data;
 
 namespace BookSellerWebAPI.Controllers
 {
@@ -19,7 +20,7 @@ namespace BookSellerWebAPI.Controllers
         public BaseController(BookSellerContext context)
             => this.context = context;
 
-        protected async Task<PagedResponse<T, V>> FilterAsync<U, V>(U filter, IQueryable<T> filteredData) where U : BaseFilter<V> where V : Enum
+        protected async Task<PagedResponse<T, V>> PaginateAsync<U, V>(U filter, IQueryable<T> filteredData) where U : BaseFilter<V> where V : Enum
         {
             if (filter.Limit <= 0)
                 filter.Limit = 1;
@@ -52,7 +53,9 @@ namespace BookSellerWebAPI.Controllers
             var model = await dbSet.FindAsync(id);
 
             if (model is null)
-                return NotFound();
+                return NotFound($"There is no record with id {id}");
+
+            model.IncludeChildren(context);
 
             return model;
         }
@@ -61,8 +64,13 @@ namespace BookSellerWebAPI.Controllers
         [HttpPost("[controller]")]
         public async Task<ActionResult<T>> Post(T model)
         {
+            if (!model.Validate(out var error, context))
+                return BadRequest(error);
+
             dbSet.Add(model);
             await context.SaveChangesAsync();
+
+            model.IncludeChildren(context);
 
             return CreatedAtAction("Get", new { id = model.Id }, model);
         }
@@ -73,7 +81,7 @@ namespace BookSellerWebAPI.Controllers
         {
             var model = await dbSet.FindAsync(id);
             if (model is null)
-                return NotFound();
+                return NotFound($"There is no record with id {id}");
 
             dbSet.Remove(model);
             await context.SaveChangesAsync();
@@ -85,8 +93,11 @@ namespace BookSellerWebAPI.Controllers
         [HttpPut("[controller]/{id}")]
         public async Task<IActionResult> Put(long id, T model)
         {
+            if (!model.Validate(out var error, context))
+                return BadRequest(error);
+
             if (id != model.Id)
-                return BadRequest();
+                return BadRequest("Sent model has different id from url.");
 
             context.Entry(model).State = EntityState.Modified;
 
@@ -96,8 +107,8 @@ namespace BookSellerWebAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!Exists<T>(id))
-                    return NotFound();
+                if (!dbSet.Exists(id))
+                    return NotFound($"There is no record with id {id}");
                 else
                     throw;
             }
@@ -105,7 +116,5 @@ namespace BookSellerWebAPI.Controllers
             return NoContent();
         }
 
-        protected bool Exists<W>(long id, IQueryable set = null) where W : BaseModel
-            => (set ?? this.dbSet).Cast<W>().Any(e => e.Id == id);
     }
 }

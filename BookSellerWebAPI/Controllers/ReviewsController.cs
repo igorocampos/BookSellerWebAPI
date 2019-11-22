@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using BookSellerWebAPI.Models;
 using BookSellerWebAPI.Controllers.Filters;
 using System;
+using BookSellerWebAPI.Data;
 
 namespace BookSellerWebAPI.Controllers
 {
@@ -18,10 +19,10 @@ namespace BookSellerWebAPI.Controllers
         [HttpGet("Books/{id}/Reviews")]
         public async Task<ActionResult<PagedResponse<Review, ReviewOrder>>> ListReviews(long id, [FromQuery] ReviewsFilter filter)
         {
-            if (!Exists<Book>(id, context.Book))
+            if (!context.Book.Exists(id))
                 return NotFound();
 
-            var filteredData = context.Review.Where(review => review.Book.Id == id);
+            var filteredData = context.Review.Include(review => review.Book).Where(review => review.Book.Id == id);
 
             switch (filter.OrderBy)
             {
@@ -37,7 +38,7 @@ namespace BookSellerWebAPI.Controllers
                 default: throw new ArgumentException($"Filter's {nameof(filter.OrderBy)} property has an invalid value.");
             }
 
-            return await FilterAsync<ReviewsFilter, ReviewOrder>(filter, filteredData);
+            return await PaginateAsync<ReviewsFilter, ReviewOrder>(filter, filteredData);
         }
     }
 }

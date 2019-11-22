@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BookSellerWebAPI.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading;
 
 namespace BookSellerWebAPI.Data
@@ -38,5 +40,8 @@ namespace BookSellerWebAPI.Data
 
             return webHost;
         }
+
+        public static bool Exists<T>(this DbSet<T> set, long id) where T : BaseModel
+           => set.Any(e => e.Id == id);
     }
 }

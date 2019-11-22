@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BookSellerWebAPI.Models
 {
@@ -8,7 +9,10 @@ namespace BookSellerWebAPI.Models
     public class Review : BaseModel
     {
         [Column("book_id")]
-        [ForeignKey("Reviews")]
+        [JsonIgnore]
+        public long BookId { get; set; }
+
+        [ForeignKey(nameof(BookId))]
         public Book Book { get; set; }
 
         [Range(1, 5)]

@@ -22,8 +22,7 @@ namespace BookSellerWebAPI
         {
             services.AddControllers();
 
-            services.AddDbContext<BookSellerContext>(options =>
-                    options.UseNpgsql(Configuration.GetConnectionString("BookSellerContext")));
+            services.AddDbContext<BookSellerContext>(options => options.UseNpgsql(Configuration.GetConnectionString("BookSellerContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

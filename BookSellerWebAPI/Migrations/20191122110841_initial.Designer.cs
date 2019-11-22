@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BookSellerWebAPI.Migrations
 {
     [DbContext(typeof(BookSellerContext))]
-    [Migration("20191121142604_initial")]
+    [Migration("20191122110841_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,6 +21,33 @@ namespace BookSellerWebAPI.Migrations
                 .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            modelBuilder.Entity("BookSellerWebAPI.Models.Author", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Biography")
+                        .HasColumnName("biography")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnName("first_name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnName("last_name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("authors");
+                });
+
             modelBuilder.Entity("BookSellerWebAPI.Models.Book", b =>
                 {
                     b.Property<long>("Id")
@@ -29,10 +56,9 @@ namespace BookSellerWebAPI.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("AuthorName")
-                        .IsRequired()
-                        .HasColumnName("author_name")
-                        .HasColumnType("text");
+                    b.Property<long>("AuthorId")
+                        .HasColumnName("author_id")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("AverageRating")
                         .HasColumnName("average_rating")
@@ -49,6 +75,8 @@ namespace BookSellerWebAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuthorId");
+
                     b.ToTable("books");
                 });
 
@@ -59,6 +87,10 @@ namespace BookSellerWebAPI.Migrations
                         .HasColumnName("id")
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("BookId")
+                        .HasColumnName("book_id")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Comment")
                         .HasColumnName("comment")
@@ -72,21 +104,29 @@ namespace BookSellerWebAPI.Migrations
                         .HasColumnName("rating")
                         .HasColumnType("integer");
 
-                    b.Property<long?>("Reviews")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Reviews");
+                    b.HasIndex("BookId");
 
                     b.ToTable("reviews");
+                });
+
+            modelBuilder.Entity("BookSellerWebAPI.Models.Book", b =>
+                {
+                    b.HasOne("BookSellerWebAPI.Models.Author", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BookSellerWebAPI.Models.Review", b =>
                 {
                     b.HasOne("BookSellerWebAPI.Models.Book", "Book")
                         .WithMany()
-                        .HasForeignKey("Reviews");
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
