@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -24,5 +25,8 @@ namespace BookSellerWebAPI.Models
 
         [Column("creation")]
         public DateTime Creation { get; set; }
+
+        public override void IncludeChildren(BookSellerContext context)
+          => context.Review.Include(review => review.Book).FirstOrDefaultAsync(review => review.Id == this.Id);
     }
 }

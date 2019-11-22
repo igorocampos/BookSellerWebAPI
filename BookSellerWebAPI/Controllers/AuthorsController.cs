@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace BookSellerWebAPI.Controllers
 {
-    public class AuthorsController : BaseController<Author>
+    public class AuthorsController : Controller<Author>
     {
         public AuthorsController(BookSellerContext context) : base(context)
             => dbSet = context.Author;
 
         // GET: api/Authors
-        [HttpGet("Authors")]
+        [HttpGet]
         public async Task<ActionResult<PagedResponse<Author, AuthorOrder>>> List([FromQuery] AuthorFilter filter)
         {
             var filteredData = context.Author.Where(author => (string.IsNullOrEmpty(filter.FirstName) || author.FirstName.ToUpper().Contains(filter.FirstName.ToUpper()))
@@ -30,7 +30,7 @@ namespace BookSellerWebAPI.Controllers
                 default: throw new ArgumentException($"Filter's {nameof(filter.OrderBy)} property has an invalid value.");
             }
 
-            return await PaginateAsync<AuthorFilter, AuthorOrder>(filter, filteredData);
+            return await PaginateAsync<AuthorFilter, AuthorOrder, Author>(filter, filteredData);
         }
     }
 }
