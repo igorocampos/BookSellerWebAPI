@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace BookSellerWebAPI.Controllers.Filters
 {
-    public class BooksFilter : BaseFilter
+    public class BooksFilter : BaseFilter<BookOrder>
     {
         public string Title { get; set; }
         public string AuthorName { get; set; }
@@ -10,7 +11,6 @@ namespace BookSellerWebAPI.Controllers.Filters
         public int? MaxAverageRating { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
-        public BookOrder OrderBy { get; set; }
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

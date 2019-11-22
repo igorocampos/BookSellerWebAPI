@@ -2,11 +2,10 @@
 
 namespace BookSellerWebAPI.Controllers.Filters
 {
-    public class ReviewsFilter : BaseFilter
+    public class ReviewsFilter : BaseFilter<ReviewOrder>
     {
-        public int BookId { get; set; }
-
-        public ReviewOrder OrderBy { get; set; }
+        public int MinRating { get; set; }
+        public int MaxRating { get; set; } = 5;
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -4,87 +4,40 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookSellerWebAPI.Models;
+using BookSellerWebAPI.Controllers.Filters;
+using System;
 
 namespace BookSellerWebAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ReviewsController : ControllerBase
+    public class ReviewsController : BaseController<Review>
     {
-        private readonly BookSellerContext context;
+        public ReviewsController(BookSellerContext context) : base(context)
+            => this.dbSet = context.Review;
 
-        public ReviewsController(BookSellerContext context)
-            => this.context = context;
-
-        // GET: api/Reviews
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReview()
+        // GET: api/Books/5/Reviews
+        [HttpGet("Books/{id}/Reviews")]
+        public async Task<ActionResult<PagedResponse<Review, ReviewOrder>>> ListReviews(long id, [FromQuery] ReviewsFilter filter)
         {
-            return await context.Review.ToListAsync();
-        }
-
-        // GET: api/Reviews/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Review>> GetReview(long id)
-        {
-            var review = await context.Review.FindAsync(id);
-
-            if (review is null)
+            if (!Exists<Book>(id, context.Book))
                 return NotFound();
 
-            return review;
-        }
+            var filteredData = context.Review.Where(review => review.Book.Id == id);
 
-        // PUT: api/Reviews/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutReview(long id, Review review)
-        {
-            if (id != review.Id)
-                return BadRequest();
-
-            context.Entry(review).State = EntityState.Modified;
-
-            try
+            switch (filter.OrderBy)
             {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReviewExists(id))
-                    return NotFound();
-                else
-                    throw;
+                case ReviewOrder.MostRecent:
+                    filteredData = filteredData.OrderBy(review => review.Creation);
+                    break;
+                case ReviewOrder.BestRating:
+                    filteredData = filteredData.OrderByDescending(review => review.Rating);
+                    break;
+                case ReviewOrder.WorstRating:
+                    filteredData = filteredData.OrderBy(review => review.Rating);
+                    break;
+                default: throw new ArgumentException($"Filter's {nameof(filter.OrderBy)} property has an invalid value.");
             }
 
-            return NoContent();
+            return await FilterAsync<ReviewsFilter, ReviewOrder>(filter, filteredData);
         }
-
-        // POST: api/Reviews
-        [HttpPost]
-        public async Task<ActionResult<Review>> PostReview(Review review)
-        {
-            context.Review.Add(review);
-            await context.SaveChangesAsync();
-
-            return CreatedAtAction("GetReview", new { id = review.Id }, review);
-        }
-
-        // DELETE: api/Reviews/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Review>> DeleteReview(long id)
-        {
-            var review = await context.Review.FindAsync(id);
-            if (review is null)
-                return NotFound();
-
-            context.Review.Remove(review);
-            await context.SaveChangesAsync();
-
-            return review;
-        }
-
-        private bool ReviewExists(long id)
-            => context.Review.Any(e => e.Id == id);
-
     }
 }
