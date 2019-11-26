@@ -36,7 +36,7 @@ namespace BookSellerWebAPI.Models
         public void CalculateAverageRating(BookSellerContext context)
         {
             var book = context.Book.Find(this.BookId);
-            book.AverageRating = Convert.ToDecimal(context.Review.Where(item => item.BookId == this.BookId).Average(item => item.Rating));
+            book.AverageRating = Math.Round(Convert.ToDecimal(context.Review.Where(item => item.BookId == this.BookId).Average(item => item.Rating)),1);
             context.SaveChanges();
         }
     }
