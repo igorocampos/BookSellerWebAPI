@@ -21,6 +21,20 @@ namespace BookSellerWebAPI.Controllers
         public BaseController(BookSellerContext context)
             => this.context = context;
 
+        // GET: api/controller/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<T>> Get(long id)
+        {
+            var model = await dbSet.FindAsync(id);
+
+            if (model is null)
+                return NotFound($"There is no record with id {id}");
+
+            model.IncludeChildren(context);
+
+            return model;
+        }
+
         // DELETE: api/controller/5
         [HttpDelete("{id}")]
         public virtual async Task<ActionResult<T>> Delete(long id)
@@ -115,20 +129,6 @@ namespace BookSellerWebAPI.Controllers
             result.OrderedBy = filter.OrderBy;
 
             return result;
-        }
-
-        // GET: api/controller/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<T>> Get(long id)
-        {
-            var model = await dbSet.FindAsync(id);
-
-            if (model is null)
-                return NotFound($"There is no record with id {id}");
-
-            model.IncludeChildren(context);
-
-            return model;
         }
 
         // POST: api/controller
