@@ -59,7 +59,7 @@ namespace BookSellerWebAPI.Controllers
             if (!context.Book.Exists(id))
                 return NotFound();
 
-            var filteredData = context.Review.Include(review => review.Book).Where(review => review.Book.Id == id);
+            var filteredData = context.Review.Where(review => review.Book.Id == id);
 
             switch (filter.OrderBy)
             {
@@ -82,6 +82,9 @@ namespace BookSellerWebAPI.Controllers
         [HttpPost("{id}/Reviews")]
         public async Task<ActionResult<Review>> Post(long id, Review model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             if (!context.Book.Exists(id))
                 return NotFound();
 

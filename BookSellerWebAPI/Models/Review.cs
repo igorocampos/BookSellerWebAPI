@@ -28,7 +28,10 @@ namespace BookSellerWebAPI.Models
         public DateTime Creation { get; set; } = DateTime.Now;
 
         public override void IncludeChildren(BookSellerContext context)
-          => context.Review.Include(review => review.Book).FirstOrDefaultAsync(review => review.Id == this.Id);
+        {
+            context.Review.Include(review => review.Book).FirstOrDefaultAsync(review => review.Id == this.Id);
+            context.Book.Include(book => book.Author).FirstOrDefaultAsync(book => book.Id == this.BookId);
+        }
 
         public void CalculateAverageRating(BookSellerContext context)
         {

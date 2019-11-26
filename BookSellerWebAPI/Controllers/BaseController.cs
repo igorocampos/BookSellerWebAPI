@@ -45,8 +45,7 @@ namespace BookSellerWebAPI.Controllers
             if (id != model.Id)
                 return BadRequest("Sent model has different id from url.");
 
-            //Encontra model na Lista, e substitui campos que não são null/default no model
-            var old = dbSet.Find(id);
+            T old = dbSet.Find(id);
 
             if (old is null)
                 return NotFound();
@@ -54,6 +53,7 @@ namespace BookSellerWebAPI.Controllers
             //Overwrite all properties holding default values with current data, because user is not required to send unchanged data.
             foreach (var prop in typeof(T).GetProperties())
             {
+                //if property has Editable = false attribute, returns BadRequest when user is trying to change its value
                 if (prop.GetCustomAttributes(false)?.OfType<EditableAttribute>().FirstOrDefault()?.AllowEdit == false && !prop.GetValue(old).Equals(prop.GetValue(model)))
                     return BadRequest($"It is not allowed to change the value of {prop.Name} property.");
 
