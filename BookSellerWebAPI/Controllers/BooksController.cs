@@ -88,6 +88,10 @@ namespace BookSellerWebAPI.Controllers
             if (!context.Book.Exists(id))
                 return NotFound();
 
+            if (model.Creation != null)
+                return BadRequest($"{nameof(model.Creation)} can't be filled. It is a read only property.");
+
+            model.Creation = DateTime.Now;
             model.BookId = id;
 
             context.Review.Add(model);

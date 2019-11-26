@@ -53,12 +53,15 @@ namespace BookSellerWebAPI.Controllers
             //Overwrite all properties holding default values with current data, because user is not required to send unchanged data.
             foreach (var prop in typeof(T).GetProperties())
             {
-                //if property has Editable = false attribute, returns BadRequest when user is trying to change its value
-                if (prop.GetCustomAttributes(false)?.OfType<EditableAttribute>().FirstOrDefault()?.AllowEdit == false && !prop.GetValue(old).Equals(prop.GetValue(model)))
-                    return BadRequest($"It is not allowed to change the value of {prop.Name} property.");
+                var oldValue = prop.GetValue(old);
+                var newValue = prop.GetValue(model);
 
-                if (prop.CanWrite && prop.GetValue(model).IsDefault(prop.PropertyType))
-                    prop.SetValue(model, prop.GetValue(old));
+                if (prop.CanWrite && newValue.IsDefault(prop.PropertyType))
+                    prop.SetValue(model, newValue = oldValue);
+
+                //if property has Editable = false attribute, returns BadRequest when user is trying to change its value
+                if (prop.GetCustomAttributes(false)?.OfType<EditableAttribute>().FirstOrDefault()?.AllowEdit == false && !oldValue.Equals(newValue))
+                    return BadRequest($"It is not allowed to change the value of {prop.Name} property.");
             }
 
             if (!model.Validate(out var error, context))

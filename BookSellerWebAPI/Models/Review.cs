@@ -25,7 +25,8 @@ namespace BookSellerWebAPI.Models
         public string Comment { get; set; }
 
         [Column("creation")]
-        public DateTime Creation { get; set; } = DateTime.Now;
+        [Editable(false)]
+        public DateTime? Creation { get; set; }
 
         public override void IncludeChildren(BookSellerContext context)
         {
@@ -36,7 +37,7 @@ namespace BookSellerWebAPI.Models
         public void CalculateAverageRating(BookSellerContext context)
         {
             var book = context.Book.Find(this.BookId);
-            book.AverageRating = Math.Round(Convert.ToDecimal(context.Review.Where(item => item.BookId == this.BookId).Average(item => item.Rating)),1);
+            book.AverageRating = Math.Round(Convert.ToDecimal(context.Review.Where(item => item.BookId == this.BookId).Average(item => item.Rating)), 1);
             context.SaveChanges();
         }
     }
