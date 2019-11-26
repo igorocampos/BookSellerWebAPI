@@ -90,6 +90,8 @@ namespace BookSellerWebAPI.Controllers
             context.Review.Add(model);
             await context.SaveChangesAsync();
 
+            model.CalculateAverageRating(context);
+
             model.IncludeChildren(context);
 
             return CreatedAtAction("Get", new { id = model.Id }, model);

@@ -43,5 +43,28 @@ namespace BookSellerWebAPI.Data
 
         public static bool Exists<T>(this DbSet<T> set, long id) where T : BaseModel
            => set.Any(e => e.Id == id);
+
+        //Credit: https://stackoverflow.com/a/33833209
+        public static bool IsDefault(this object obj, Type runtimeType)
+        {
+            if (obj == null)
+                return true;
+
+            if (runtimeType == null)
+                throw new ArgumentNullException(nameof(runtimeType));
+
+            // Handle non-null reference types.
+            if (!runtimeType.IsValueType)
+                return false;
+
+            // Nullable, but not null
+            if (Nullable.GetUnderlyingType(runtimeType) != null)
+                return false;
+
+            // Use CreateInstance as the most reliable way to get default value for a value type
+            object defaultValue = Activator.CreateInstance(runtimeType);
+
+            return defaultValue.Equals(obj);
+        }
     }
 }

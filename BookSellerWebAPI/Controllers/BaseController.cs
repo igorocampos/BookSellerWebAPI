@@ -7,6 +7,7 @@ using BookSellerWebAPI.Models;
 using BookSellerWebAPI.Controllers.Filters;
 using System;
 using BookSellerWebAPI.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace BookSellerWebAPI.Controllers
 {
@@ -22,7 +23,7 @@ namespace BookSellerWebAPI.Controllers
 
         // DELETE: api/controller/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<T>> Delete(long id)
+        public virtual async Task<ActionResult<T>> Delete(long id)
         {
             var model = await dbSet.FindAsync(id);
             if (model is null)
@@ -36,13 +37,34 @@ namespace BookSellerWebAPI.Controllers
 
         // PUT: api/controller/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(long id, T model)
+        public virtual async Task<IActionResult> Put(long id, T model)
         {
-            if (!model.Validate(out var error, context))
-                return BadRequest(error);
+            if (model.Id == default)
+                model.Id = id;
 
             if (id != model.Id)
                 return BadRequest("Sent model has different id from url.");
+
+            //Encontra model na Lista, e substitui campos que não são null/default no model
+            var old = dbSet.Find(id);
+
+            if (old is null)
+                return NotFound();
+
+            //Overwrite all properties holding default values with current data, because user is not required to send unchanged data.
+            foreach (var prop in typeof(T).GetProperties())
+            {
+                if (prop.GetCustomAttributes(false)?.OfType<EditableAttribute>().FirstOrDefault()?.AllowEdit == false && !prop.GetValue(old).Equals(prop.GetValue(model)))
+                    return BadRequest($"It is not allowed to change the value of {prop.Name} property.");
+
+                if (prop.CanWrite && prop.GetValue(model).IsDefault(prop.PropertyType))
+                    prop.SetValue(model, prop.GetValue(old));
+            }
+
+            if (!model.Validate(out var error, context))
+                return BadRequest(error);
+
+            context.Entry(old).State = EntityState.Detached;
 
             context.Entry(model).State = EntityState.Modified;
 
@@ -110,6 +132,9 @@ namespace BookSellerWebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<T>> Post(T model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             if (!model.Validate(out var error, context))
                 return BadRequest(error);
 

@@ -25,6 +25,7 @@ namespace BookSellerWebAPI.Models
         public string AuthorFullName => $"{this.Author?.FirstName} {this.Author?.LastName}";
 
         [Column("average_rating")]
+        [Editable(false)]
         public decimal AverageRating { get; set; }
 
         [Min("0.01", "Price must be at least 0.01")]
