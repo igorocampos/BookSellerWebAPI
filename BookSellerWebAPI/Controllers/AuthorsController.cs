@@ -12,6 +12,13 @@ namespace BookSellerWebAPI.Controllers
         public AuthorsController(BookSellerContext context) : base(context)
             => dbSet = context.Author;
 
+        /// <summary>
+        /// Gets a paged list with Authors found according to the search parameters.
+        /// </summary>
+        /// <remarks>
+        /// If no page number is informed, it will return the first page. If no record limit (page size) is informed, it will be 100 records.
+        /// </remarks>
+        /// <response code="200"><pre>Returns a JSON of the page.</pre></response>
         // GET: api/Authors
         [HttpGet]
         public async Task<ActionResult<PagedResponse<Author, AuthorOrder>>> List([FromQuery] AuthorFilter filter)

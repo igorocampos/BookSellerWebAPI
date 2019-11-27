@@ -15,6 +15,13 @@ namespace BookSellerWebAPI.Controllers
         public BooksController(BookSellerContext context) : base(context)
             => this.dbSet = context.Book;
 
+        /// <summary>
+        /// Gets a paged list with Books found according to the search parameters.
+        /// </summary>
+        /// <remarks>
+        /// If no page number is informed, it will return the first page. If no record limit (page size) is informed, it will be 100 records.
+        /// </remarks>
+        /// <response code="200"><pre>Returns a JSON of the page.</pre></response>
         // GET: api/Books
         [HttpGet]
         public async Task<ActionResult<PagedResponse<Book, BookOrder>>> List([FromQuery] BooksFilter filter)
@@ -52,6 +59,14 @@ namespace BookSellerWebAPI.Controllers
             return await PaginateAsync<BooksFilter, BookOrder, Book>(filter, filteredData);
         }
 
+        /// <summary>
+        /// Gets a paged list with Reviews found according to the search parameters.
+        /// </summary>
+        /// <remarks>
+        /// If no page number is informed, it will return the first page. If no record limit (page size) is informed, it will be 100 records.
+        /// </remarks>
+        /// <response code="200"><pre>Returns a JSON of the page.</pre></response>
+        /// <response code="404"><pre>If there is no Book record with the sent id.</pre></response>
         // GET: api/Books/5/Reviews
         [HttpGet("{id}/Reviews")]
         public async Task<ActionResult<PagedResponse<Review, ReviewOrder>>> ListReviews(long id, [FromQuery] ReviewsFilter filter)
@@ -78,7 +93,14 @@ namespace BookSellerWebAPI.Controllers
             return await PaginateAsync<ReviewsFilter, ReviewOrder, Review>(filter, filteredData);
         }
 
+        /// <summary>
+        /// Creates a new Review for a Book. Body must contain JSON of the Review. Authorization is NOT needed.
+        /// </summary>
+        /// <response code="201"><pre>Succesfully created. A JSON of the new record is returned.</pre></response>
+        /// <response code="400"><pre>If Creation field was filled, or any other validations didn't pass.</pre></response>
+        /// <response code="404"><pre>If there is no Book record with the sent id.</pre></response>
         // POST: api/Books/5/Reviews
+        [ProducesResponseType(201)]
         [HttpPost("{id}/Reviews")]
         public async Task<ActionResult<Review>> Post(long id, Review model)
         {

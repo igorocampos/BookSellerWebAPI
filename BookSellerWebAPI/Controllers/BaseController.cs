@@ -14,6 +14,7 @@ namespace BookSellerWebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class BaseController<T> : ControllerBase where T : BaseModel
     {
         protected readonly BookSellerContext context;
@@ -22,6 +23,11 @@ namespace BookSellerWebAPI.Controllers
         public BaseController(BookSellerContext context)
             => this.context = context;
 
+        /// <summary>
+        /// Gets the record that has the sent id.
+        /// </summary>
+        /// <response code="200"><pre>Returns a JSON of the record.</pre></response>
+        /// <response code="404"><pre>If there is no record with the sent id.</pre></response>
         // GET: api/controller/5
         [HttpGet("{id}")]
         public async Task<ActionResult<T>> Get(long id)
@@ -36,6 +42,12 @@ namespace BookSellerWebAPI.Controllers
             return model;
         }
 
+        /// <summary>
+        /// Deletes the record that has the sent id. Authorization is needed.
+        /// </summary>
+        /// <response code="200"><pre>Returns a JSON of the deleted record.</pre></response>
+        /// <response code="401"><pre>Unauthorized to perform this operation.</pre></response>
+        /// <response code="404"><pre>If there is no record with the sent id.</pre></response>
         // DELETE: api/controller/5
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -51,9 +63,17 @@ namespace BookSellerWebAPI.Controllers
             return model;
         }
 
+        /// <summary>
+        /// Edits the record that has the sent id. Body must contain JSON with new values, unchanged fields don't need to be sent. Authorization is needed.
+        /// </summary>
+        /// <response code="204"><pre>Succesfully edited. No content is returned.</pre></response>
+        /// <response code="400"><pre>Trying to change a readonly field, or any of the validations didn't pass.</pre></response>
+        /// <response code="401"><pre>Unauthorized to perform this operation.</pre></response>
+        /// <response code="404"><pre>If there is no record with the sent id.</pre></response>
         // PUT: api/controller/5
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(204)]
         public virtual async Task<IActionResult> Put(long id, T model)
         {
             if (model.Id == default)
@@ -134,8 +154,15 @@ namespace BookSellerWebAPI.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Creates a new record. Body must contain JSON of the model. Authorization is needed.
+        /// </summary>
+        /// <response code="201"><pre>Succesfully created. A JSON of the new record is returned.</pre></response>
+        /// <response code="400"><pre>Any of the validations didn't pass.</pre></response>
+        /// <response code="401"><pre>Unauthorized to perform this operation.</pre></response>
         // POST: api/controller
         [HttpPost]
+        [ProducesResponseType(201)]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<T>> Post(T model)
         {
