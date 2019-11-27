@@ -14,7 +14,6 @@ using Microsoft.OpenApi.Models;
 using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace BookSellerWebAPI
 {
