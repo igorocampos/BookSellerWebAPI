@@ -8,6 +8,7 @@ using BookSellerWebAPI.Controllers.Filters;
 using System;
 using BookSellerWebAPI.Data;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookSellerWebAPI.Controllers
 {
@@ -37,6 +38,7 @@ namespace BookSellerWebAPI.Controllers
 
         // DELETE: api/controller/5
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public virtual async Task<ActionResult<T>> Delete(long id)
         {
             var model = await dbSet.FindAsync(id);
@@ -51,6 +53,7 @@ namespace BookSellerWebAPI.Controllers
 
         // PUT: api/controller/5
         [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public virtual async Task<IActionResult> Put(long id, T model)
         {
             if (model.Id == default)
@@ -133,6 +136,7 @@ namespace BookSellerWebAPI.Controllers
 
         // POST: api/controller
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<T>> Post(T model)
         {
             if (!ModelState.IsValid)

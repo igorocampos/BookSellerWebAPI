@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using BookSellerWebAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace BookSellerWebAPI.Models
 {
@@ -12,5 +12,7 @@ namespace BookSellerWebAPI.Models
         public DbSet<Review> Review { get; set; }
 
         public DbSet<Author> Author { get; set; }
+
+        public DbSet<IdentityUser> ApplicationUser { get; set; }
     }
 }
