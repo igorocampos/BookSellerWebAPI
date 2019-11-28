@@ -56,8 +56,9 @@ namespace BookSellerWebAPI.UnitTests
             using (var dbContext = GetBookSellerContext(nameof(TestListFilter), TOTAL_RECORDS))
             {
                 // Arrange
-                dbContext.Author.First().FirstName = "[TEST]fIrStNaMe[TEST]";
-                dbContext.Author.First().LastName = "[TEST]lAsTNaMe[TEST]";
+                var firstAuthor = dbContext.Author.First();
+                firstAuthor.FirstName = "[TEST]fIrStNaMe[TEST]";
+                firstAuthor.LastName = "[TEST]lAsTNaMe[TEST]";
                 dbContext.SaveChanges();
 
                 var filter = new AuthorFilter();
@@ -130,7 +131,7 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData("FirstName", "", "Biography")]
         public async Task TestCreate(string firstName, string lastName, string biography, string expectedResultName = null)
         {
-            using var dbContext = GetBookSellerContext(nameof(TestCreate), 0);
+            using var dbContext = GetBookSellerContext(nameof(TestCreate));
 
             // Arrange
             var author = new Author
