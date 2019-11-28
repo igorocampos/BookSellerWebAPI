@@ -60,7 +60,7 @@ namespace BookSellerWebAPI.Controllers
             dbSet.Remove(model);
             await context.SaveChangesAsync();
 
-            return model;
+            return Ok(model);
         }
 
         /// <summary>
