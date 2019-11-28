@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookSellerWebAPI", "BookSellerWebAPI\BookSellerWebAPI.csproj", "{9CEA8832-5C93-4ADC-A8B1-062C0B0588BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookSellerWebAPI", "BookSellerWebAPI\BookSellerWebAPI.csproj", "{9CEA8832-5C93-4ADC-A8B1-062C0B0588BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookSellerWebAPI.UnitTests", "BookSellerWebAPI.UnitTests\BookSellerWebAPI.UnitTests.csproj", "{4F7B5F0D-3857-4F7F-B329-A9C9F517417A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{9CEA8832-5C93-4ADC-A8B1-062C0B0588BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CEA8832-5C93-4ADC-A8B1-062C0B0588BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CEA8832-5C93-4ADC-A8B1-062C0B0588BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F7B5F0D-3857-4F7F-B329-A9C9F517417A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F7B5F0D-3857-4F7F-B329-A9C9F517417A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F7B5F0D-3857-4F7F-B329-A9C9F517417A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F7B5F0D-3857-4F7F-B329-A9C9F517417A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

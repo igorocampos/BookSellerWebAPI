@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 
@@ -65,6 +67,53 @@ namespace BookSellerWebAPI.Data
             object defaultValue = Activator.CreateInstance(runtimeType);
 
             return defaultValue.Equals(obj);
+        }
+
+        private static Random random = new Random();
+        public static BookSellerContext Seed(this BookSellerContext dbContext, int authorCount = 0, int bookCount = 0, int reviewCount = 0)
+        {
+            //Load context with N Authors with random values
+            for (int i = 1; i <= authorCount; i++)
+                dbContext.Author.Add(new Author
+                {
+                    FirstName = RandomStrings(1).First(),
+                    LastName = RandomStrings(1).First()
+                });
+
+            dbContext.SaveChanges();
+
+            //Load context with N Books of the first author
+            for (int i = 1; i <= bookCount; i++)
+                dbContext.Book.Add(new Book
+                {
+                    Author = dbContext.Author.FirstOrDefault() ?? throw new Exception("Can't seed Books without any Author."),
+                    Price = Math.Round(Convert.ToDecimal(random.NextDouble()), 2),
+                    Title = string.Join(' ', RandomStrings(3)),
+                });
+
+            dbContext.SaveChanges();
+
+            //Load context with N Reviews in the first book
+            for (int i = 1; i <= reviewCount; i++)
+                dbContext.Review.Add(new Review
+                {
+                    Book = dbContext.Book.FirstOrDefault() ?? throw new Exception("Can't seed Reviews without any Book."),
+                    Comment = string.Join(' ', RandomStrings(10)),
+                    Rating = random.Next(1, 5)
+                });
+
+            dbContext.SaveChanges();
+
+            return dbContext;
+        }
+
+        public static IEnumerable<string> RandomStrings(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                //Generate a random 11 characters name
+                yield return Path.GetRandomFileName();
+            }
         }
     }
 }
