@@ -25,7 +25,7 @@ namespace BookSellerWebAPI.Models
         [Editable(false)]
         public decimal AverageRating { get; set; }
 
-        [Min("0.01", "Price must be at least 0.01")]
+        [Min(0.01, "Price must be at least 0.01")]
         [Column("price")]
         public decimal Price { get; set; }
 

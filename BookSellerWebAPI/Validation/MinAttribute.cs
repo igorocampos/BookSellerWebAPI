@@ -19,7 +19,7 @@ namespace BookSellerWebAPI.Validation
             this.ErrorMessage = $"Value must be greater than or equals to {minValue}";
         }
 
-        public MinAttribute(string minValue, string errorMessage)
+        public MinAttribute(double minValue, string errorMessage)
         {
             this.MinValue = Convert.ToDecimal(minValue);
             this.ErrorMessage = errorMessage;
