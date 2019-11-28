@@ -29,7 +29,7 @@ namespace BookSellerWebAPI.Controllers
                                                    && (string.IsNullOrEmpty(filter.AuthorName) || (book.Author.FirstName + " " + book.Author.LastName).ToUpper().Contains(filter.AuthorName.ToUpper()))
                                                    && (filter.MinAverageRating == null || book.AverageRating >= filter.MinAverageRating)
                                                    && (filter.MaxAverageRating == null || book.AverageRating <= filter.MaxAverageRating)
-                                                   && (filter.MinPrice == null || book.Price >= filter.MaxPrice)
+                                                   && (filter.MinPrice == null || book.Price >= filter.MinPrice)
                                                    && (filter.MaxPrice == null || book.Price <= filter.MaxPrice));
 
             switch (filter.OrderBy)
