@@ -21,9 +21,6 @@ namespace BookSellerWebAPI.Models
         [ForeignKey(nameof(AuthorId))]
         public Author Author { get; set; }
 
-        [JsonIgnore]
-        public string AuthorFullName => $"{this.Author?.FirstName} {this.Author?.LastName}";
-
         [Column("average_rating")]
         [Editable(false)]
         public decimal AverageRating { get; set; }
