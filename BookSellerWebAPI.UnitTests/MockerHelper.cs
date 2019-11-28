@@ -30,7 +30,7 @@ namespace BookSellerWebAPI.UnitTests
             var validationResults = new List<ValidationResult>();
             Validator.TryValidateObject(model, validationContext, validationResults, true);
             foreach (var validationResult in validationResults)
-                controller.ModelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
+                controller.ModelState.AddModelError(validationResult.MemberNames.FirstOrDefault() ?? "", validationResult.ErrorMessage);
 
             return controller.ModelState.IsValid;
         }

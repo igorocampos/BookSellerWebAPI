@@ -87,7 +87,7 @@ namespace BookSellerWebAPI.Data
                 dbContext.Book.Add(new Book
                 {
                     Author = dbContext.Author.FirstOrDefault() ?? throw new Exception("Can't seed Books without any Author."),
-                    Price = Math.Round(Convert.ToDecimal(random.NextDouble()), 2),
+                    Price = Math.Round(Convert.ToDecimal(random.NextDouble()), 2) + 1,
                     Title = string.Join(' ', RandomStrings(3)),
                 });
 
