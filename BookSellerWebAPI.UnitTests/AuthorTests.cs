@@ -20,25 +20,23 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData(5)]
         public async Task TestListTotalPages(int limit)
         {
-            using (var dbContext = GetBookSellerContext($"{nameof(TestListTotalPages)}_{limit}", TOTAL_RECORDS))
-            {
-                // Arrange
-                var controller = new AuthorsController(dbContext);
-                var filter = new AuthorFilter { Limit = limit };
+            // Arrange
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestListTotalPages)}_{limit}", TOTAL_RECORDS);
+            var controller = new AuthorsController(dbContext);
+            var filter = new AuthorFilter { Limit = limit };
 
-                // Act
-                var response = await controller.List(filter);
+            // Act
+            var response = await controller.List(filter);
 
-                // Assert
-                Assert.Equal(ExpectedTotalPages(limit, TOTAL_RECORDS), response.Value.TotalPages);
-            }
+            // Assert
+            Assert.Equal(ExpectedTotalPages(limit, TOTAL_RECORDS), response.Value.TotalPages);
         }
 
         [Fact]
         public async Task TestListCount()
         {
-            using var dbContext = GetBookSellerContext(nameof(TestListCount), TOTAL_RECORDS);
             // Arrange
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestListCount)}", TOTAL_RECORDS);
             var controller = new AuthorsController(dbContext);
 
             // Act
@@ -53,25 +51,23 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData(nameof(Author.LastName))]
         public async Task TestListFilter(string propertyName)
         {
-            using (var dbContext = GetBookSellerContext(nameof(TestListFilter), TOTAL_RECORDS))
-            {
-                // Arrange
-                var firstAuthor = dbContext.Author.First();
-                firstAuthor.FirstName = "[TEST]fIrStNaMe[TEST]";
-                firstAuthor.LastName = "[TEST]lAsTNaMe[TEST]";
-                dbContext.SaveChanges();
+            // Arrange
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestListFilter)}", TOTAL_RECORDS);
+            var firstAuthor = dbContext.Author.First();
+            firstAuthor.FirstName = "[TEST]fIrStNaMe[TEST]";
+            firstAuthor.LastName = "[TEST]lAsTNaMe[TEST]";
+            dbContext.SaveChanges();
 
-                var filter = new AuthorFilter();
-                typeof(AuthorFilter).GetProperty(propertyName).SetValue(filter, propertyName);
+            var filter = new AuthorFilter();
+            typeof(AuthorFilter).GetProperty(propertyName).SetValue(filter, propertyName);
 
-                var controller = new AuthorsController(dbContext);
+            var controller = new AuthorsController(dbContext);
 
-                // Act
-                var response = await controller.List(filter);
+            // Act
+            var response = await controller.List(filter);
 
-                // Assert
-                Assert.Single(response.Value.Items);
-            }
+            // Assert
+            Assert.Single(response.Value.Items);
         }
 
         [Theory]
@@ -79,28 +75,25 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData(AuthorOrder.LastName)]
         public async Task TestListOrderby(AuthorOrder orderBy)
         {
+            // Arrange
             const string LOWEST = "'''";
             const string HIGHEST = "ZZZ";
-            using (var dbContext = GetBookSellerContext(nameof(TestListOrderby), TOTAL_RECORDS))
-            {
-                // Arrange
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestListOrderby)}", TOTAL_RECORDS);
+            var prop = typeof(Author).GetProperty(orderBy.ToString());
+            prop.SetValue(dbContext.Author.First(), HIGHEST);
+            prop.SetValue(dbContext.Author.Last(), LOWEST);
 
-                var prop = typeof(Author).GetProperty(orderBy.ToString());
-                prop.SetValue(dbContext.Author.First(), HIGHEST);
-                prop.SetValue(dbContext.Author.Last(), LOWEST);
+            dbContext.SaveChanges();
 
-                dbContext.SaveChanges();
+            var controller = new AuthorsController(dbContext);
 
-                var controller = new AuthorsController(dbContext);
+            // Act
+            var response = await controller.List(new AuthorFilter { OrderBy = orderBy });
 
-                // Act
-                var response = await controller.List(new AuthorFilter { OrderBy = orderBy });
-
-                // Assert
-                Assert.Equal(orderBy, response.Value.OrderedBy);
-                Assert.Equal(LOWEST, prop.GetValue(response.Value.Items.First()));
-                Assert.Equal(HIGHEST, prop.GetValue(response.Value.Items.Last()));
-            }
+            // Assert
+            Assert.Equal(orderBy, response.Value.OrderedBy);
+            Assert.Equal(LOWEST, prop.GetValue(response.Value.Items.First()));
+            Assert.Equal(HIGHEST, prop.GetValue(response.Value.Items.Last()));
         }
 
         [Theory]
@@ -109,9 +102,8 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData(3)]
         public async Task TestGet(int id)
         {
-            using var dbContext = GetBookSellerContext(nameof(TestGet), TOTAL_RECORDS);
-
             // Arrange
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestGet)}", TOTAL_RECORDS);
             var controller = new AuthorsController(dbContext);
 
             // Act
@@ -131,9 +123,8 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData("FirstName", "", "Biography")]
         public async Task TestCreate(string firstName, string lastName, string biography, string expectedResultName = null)
         {
-            using var dbContext = GetBookSellerContext(nameof(TestCreate));
-
             // Arrange
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestCreate)}");
             var author = new Author
             {
                 FirstName = firstName,
@@ -162,10 +153,9 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData(0, 0, nameof(NotFoundResult))]
         public async Task TestUpdate(int findingId, int modelId, string expectedResultName)
         {
-            const string NEW_NAME = "ChangedName";
-            using var dbContext = GetBookSellerContext(nameof(TestUpdate), TOTAL_RECORDS);
-
             // Arrange
+            const string NEW_NAME = "ChangedName";
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestUpdate)}", TOTAL_RECORDS);
             var author = dbContext.Author.First();
             author.Id = modelId;
             author.FirstName = NEW_NAME;
@@ -184,9 +174,8 @@ namespace BookSellerWebAPI.UnitTests
         [InlineData(0, nameof(NotFoundObjectResult))]
         public async Task TestDelete(int id, string expectedResultName)
         {
-            using var dbContext = GetBookSellerContext(nameof(TestDelete), TOTAL_RECORDS);
-
             // Arrange
+            using var dbContext = GetBookSellerContext($"{nameof(AuthorTests)}_{nameof(TestDelete)}", TOTAL_RECORDS);
             var controller = new AuthorsController(dbContext);
 
             // Act
