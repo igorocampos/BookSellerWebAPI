@@ -10,12 +10,8 @@ using static BookSellerWebAPI.UnitTests.MockerHelper;
 
 namespace BookSellerWebAPI.UnitTests
 {
-    public class BookTests
+    public class BookTests : BaseTests<Book>
     {
-        const int TOTAL_RECORDS = 5;
-        const string LOWEST_NAME = "'''";
-        const string HIGHEST_NAME = "ZZZ";
-
         [Theory]
         [InlineData(-1)]
         [InlineData(100)]
@@ -184,13 +180,9 @@ namespace BookSellerWebAPI.UnitTests
         {
             // Arrange
             using var dbContext = GetBookSellerContext($"{nameof(BookTests)}_{nameof(TestGet)}", 1, TOTAL_RECORDS);
-            var controller = new BooksController(dbContext);
 
-            // Act
-            var response = await controller.Get(id);
-
-            // Assert
-            Assert.True(id <= 0 ? response.Result is NotFoundObjectResult : response.Value.Id == id, "Either the returned model ID was different from the requested, or it found a model when it should not.");
+            // Act & Assert
+            await Get(id, new BooksController(dbContext));
         }
 
         [Theory]
@@ -203,11 +195,9 @@ namespace BookSellerWebAPI.UnitTests
         {
             // Arrange
             using var dbContext = GetBookSellerContext($"{nameof(BookTests)}_{nameof(TestCreate)}", 1);
-            var author = dbContext.Author.First();
-
             var book = new Book
             {
-                Author = author,
+                Author = dbContext.Author.First(),
                 Title = title,
             };
 
@@ -215,19 +205,8 @@ namespace BookSellerWebAPI.UnitTests
             if (price != null)
                 book.Price = Convert.ToDecimal(price);
 
-            var controller = new BooksController(dbContext);
-
-            // Act
-            ActionResult<Book> response = null;
-
-            // Mimic the behaviour of the model binder which is responsible for Validating the Model
-            if (controller.Validate(book))
-                response = await controller.Post(book);
-
-            // Assert
-            Assert.True(response?.Result.GetType().Name == expectedResultName, expectedResultName is null
-                                                                               ? "It was expected that this test case would not pass the model biding validation, however it did."
-                                                                               : $"It was expected that this test case would have a '{expectedResultName}' return, however it did not.");
+            // Act & Assert
+            await Create(expectedResultName, new BooksController(dbContext), book);
         }
 
         [Theory]
@@ -237,19 +216,13 @@ namespace BookSellerWebAPI.UnitTests
         public async Task TestUpdate(int findingId, int modelId, string expectedResultName)
         {
             // Arrange
-            const string NEW_NAME = "ChangedName";
             using var dbContext = GetBookSellerContext($"{nameof(BookTests)}_{nameof(TestUpdate)}", 1, TOTAL_RECORDS);
             var book = dbContext.Book.First();
             book.Id = modelId;
-            book.Title = NEW_NAME;
+            book.Title = "ChangedName";
 
-            var controller = new BooksController(dbContext);
-
-            // Act
-            var response = await controller.Put(findingId, book);
-
-            // Assert
-            Assert.True(response.GetType().Name == expectedResultName, $"It was expected that this test case would have a '{expectedResultName}' return, however it did not. Actual result type: {response.GetType()}.");
+            // Act & Assert
+            await Update(findingId, expectedResultName, new BooksController(dbContext), book);
         }
 
         [Theory]
@@ -259,13 +232,9 @@ namespace BookSellerWebAPI.UnitTests
         {
             // Arrange
             using var dbContext = GetBookSellerContext($"{nameof(BookTests)}_{nameof(TestDelete)}", 1, TOTAL_RECORDS);
-            var controller = new BooksController(dbContext);
 
-            // Act
-            var response = await controller.Delete(id);
-
-            // Assert
-            Assert.True(response.Result.GetType().Name == expectedResultName, $"It was expected that this test case would have a '{expectedResultName}' return, however it did not. Actual result type: {response.Result.GetType()}.");
+            // Act & Assert
+            await Delete(id, expectedResultName, new BooksController(dbContext));
         }
     }
 }

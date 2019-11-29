@@ -7,12 +7,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using static BookSellerWebAPI.UnitTests.MockerHelper;
+
 namespace BookSellerWebAPI.UnitTests
 {
-    public class ReviewTests
+    public class ReviewTests : BaseTests<Review>
     {
-        const int TOTAL_RECORDS = 5;
-
         [Theory]
         [InlineData(-1)]
         [InlineData(100)]
@@ -138,13 +137,9 @@ namespace BookSellerWebAPI.UnitTests
         {
             // Arrange
             using var dbContext = GetBookSellerContext($"{nameof(ReviewTests)}_{nameof(TestGet)}", 1, 1, TOTAL_RECORDS);
-            var controller = new ReviewsController(dbContext);
 
-            // Act
-            var response = await controller.Get(id);
-
-            // Assert
-            Assert.True(id <= 0 ? response.Result is NotFoundObjectResult : response.Value.Id == id, "Either the returned model ID was different from the requested, or it found a model when it should not.");
+            // Act & Assert
+            await Get(id, new ReviewsController(dbContext));
         }
 
         [Theory]
@@ -195,13 +190,8 @@ namespace BookSellerWebAPI.UnitTests
             review.Id = modelId;
             review.Rating = 1;
 
-            var controller = new ReviewsController(dbContext);
-
-            // Act
-            var response = await controller.Put(findingId, review);
-
-            // Assert
-            Assert.True(response.GetType().Name == expectedResultName, $"It was expected that this test case would have a '{expectedResultName}' return, however it did not. Actual result type: {response.GetType()}.");
+            //Act & Assert
+            await Update(findingId, expectedResultName, new ReviewsController(dbContext), review);
         }
 
         [Theory]
@@ -211,13 +201,9 @@ namespace BookSellerWebAPI.UnitTests
         {
             // Arrange
             using var dbContext = GetBookSellerContext($"{nameof(ReviewTests)}_{nameof(TestDelete)}", 1, 1, TOTAL_RECORDS);
-            var controller = new ReviewsController(dbContext);
 
-            // Act
-            var response = await controller.Delete(id);
-
-            // Assert
-            Assert.True(response.Result.GetType().Name == expectedResultName, $"It was expected that this test case would have a '{expectedResultName}' return, however it did not. Actual result type: {response.Result.GetType()}.");
+            //Act & Assert
+            await Delete(id, expectedResultName, new ReviewsController(dbContext));
         }
     }
 }
