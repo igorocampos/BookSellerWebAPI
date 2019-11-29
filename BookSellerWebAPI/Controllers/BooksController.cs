@@ -73,12 +73,12 @@ namespace BookSellerWebAPI.Controllers
             if (!context.Book.Exists(id))
                 return NotFound();
 
-            var filteredData = context.Review.Where(review => review.Book.Id == id);
+            var filteredData = context.Review.Where(review => review.Book.Id == id && review.Rating >= filter.MinRating && review.Rating <= filter.MaxRating);
 
             switch (filter.OrderBy)
             {
                 case ReviewOrder.MostRecent:
-                    filteredData = filteredData.OrderBy(review => review.Creation);
+                    filteredData = filteredData.OrderByDescending(review => review.Creation);
                     break;
                 case ReviewOrder.BestRating:
                     filteredData = filteredData.OrderByDescending(review => review.Rating);

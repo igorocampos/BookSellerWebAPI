@@ -97,7 +97,7 @@ namespace BookSellerWebAPI.Controllers
                     prop.SetValue(model, newValue = oldValue);
 
                 //if property has Editable = false attribute, returns BadRequest when user is trying to change its value
-                if (prop.GetCustomAttributes(false)?.OfType<EditableAttribute>().FirstOrDefault()?.AllowEdit == false && !oldValue.Equals(newValue))
+                if (prop.GetCustomAttributes(false)?.OfType<EditableAttribute>().FirstOrDefault()?.AllowEdit == false && oldValue != null && !oldValue.Equals(newValue))
                     return BadRequest($"It is not allowed to change the value of {prop.Name} property.");
             }
 
